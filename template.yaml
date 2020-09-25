@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  crud
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Parameters:
+  TableName:
+    Type: String
+    Default: 'vehicles-table'
+    Description: (Required) The name of the new DynamoDB table you want to create and save to. Minimum 3 characters
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z]+$
+    ConstraintDescription: 'Required parameter. Must be characters only. No numbers allowed.'
+
+Resources:
+  getVehicles:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: crud/
+      Handler: vehicles.handler
+      Runtime: nodejs12.x
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableName
+      # process.ev.TABLE_NAME for my functions
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+      Events:
+        getVehicles:
+          Type: Api 
+          Properties:
+            Path: /vehicles
+            Method: get
+        otherOperations:
+          Type: Api 
+          Properties:
+            Path: /vehicles/{itemId}
+            Method: any
+  DynamoDBTable:
+  Type: AWS::DynamoDB::Table
+  Properties: 
+    TableName: !Ref TableName
+    AttributeDefinitions: 
+      - AttributeName: id
+        AttributeType: S
+    KeySchema: 
+      - AttributeName: id
+        KeyType: HASH
+    ProvisionedThroughput: 
+      ReadCapacityUnits: 5
+      WriteCapacityUnits: 5
+    StreamSpecification:
+      StreamViewType: NEW_IMAGE
+  
+
+Outputs:
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  HelloWorldFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn
+
+#https://a3h9s581y7.execute-api.us-east-1.amazonaws.com/Prod/hello/
