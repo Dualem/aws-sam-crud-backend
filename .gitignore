@@ -126,7 +126,7 @@ $RECYCLE.BIN/
 *.lnk
 
 #build files
-.aws-sam\build
+build
 README.md
 events
 samconfig.toml

@@ -1,44 +1,60 @@
-// const axios = require('axios')
-// const url = 'http://checkip.amazonaws.com/';
-let response;
-
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Context doc: https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html 
- * @param {Object} context
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- * 
- */
 const AWS = require('aws-sdk');
 
 const ddb = new AWS.DynamoDB.DocumentClient();
-const tableName = process.env.TABLE_NAME;
-
+const tableName = "VehicleOrders";
 
 exports.handler = async (event) => {
     // TODO implement
     let data;
     try{
-        data = await readData();
-        console.log(data);
+        switch (event.httpMethod) {
+           
+            case 'GET':
+                data = await readData();
+                return {statusCode:200, body:JSON.stringify(data)};
+            case 'POST':
+                data = await createData();
+
+                console.log(data);
+                return {statusCode:200, body:JSON.stringify(data)};
+            default:
+                return{statusCode:404, body:`Unsupported method "${event.httpMethod}"`};
+        }
     }
     catch(err){
         console.log("error has accured: " + err);
     }
-    return{statusCode:200, body:JSON.stringify(data)};
     
 };
 const readData = async() =>{
     let params = {
-        TableName:"VehicleOrders"
+        TableName: tableName
     }
     return ddb.scan(params).promise();
 }
-const createData = async() =>{
 
+const createData = async () =>{
+    
+    let params = {
+        TableName: tableName,
+        Item:{
+            id: 312123,
+            TimeStamp: 112123,
+            Manufacture: "seat",
+            Mode: "ibiza",
+            Price: 1000
+        }
+    }
+    return ddb.put(params,(err, data) => {
+        if (err) {
+            console.error("Unable to add item", params.Item.Id);
+            console.error("Error JSON:", JSON.stringify(err));
+        }
+        else {
+            console.log("Vehicle added to talbe: ", params.Item);
+            
+        }   
+    }).promise().then(() =>{
+        return params.Item
+    });
 }
