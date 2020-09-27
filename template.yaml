@@ -31,21 +31,35 @@ Resources:
                     - Ref: 'AWS::Region'
                     - ':'
                     - Ref: 'AWS::AccountId'
-                    - ':table/VehicleOrders'
+                    - ':table/Vehicles'
         - DynamoDBCrudPolicy:
-            TableName: VehicleOrders
+            TableName: Vehicles
       Events:
         getVehicles:
           Type: Api 
           Properties:
-            Path: /vehicles
+            Path: /vehicles/{id}
             Method: get
         allOperations:
           Type: Api 
           Properties:
-            Path: /vehicles/{id}
+            Path: /vehicles
             Method: any
-
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: "Vehicles"
+      AttributeDefinitions: 
+        - AttributeName: id
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
 
 
 #https://a3h9s581y7.execute-api.us-east-1.amazonaws.com/Prod/hello/

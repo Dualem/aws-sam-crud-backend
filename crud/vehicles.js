@@ -1,7 +1,8 @@
 const AWS = require('aws-sdk');
+const { v4: uuidv4 } = require('uuid');
 
 const ddb = new AWS.DynamoDB.DocumentClient();
-const tableName = "VehicleOrders";
+const tableName = "Vehicles"
 
 exports.handler = async (event) => {
     // TODO implement
@@ -13,9 +14,7 @@ exports.handler = async (event) => {
                 data = await readData();
                 return {statusCode:200, body:JSON.stringify(data)};
             case 'POST':
-                data = await createData();
-
-                console.log(data);
+                data = await createData(event);
                 return {statusCode:200, body:JSON.stringify(data)};
             default:
                 return{statusCode:404, body:`Unsupported method "${event.httpMethod}"`};
@@ -33,17 +32,13 @@ const readData = async() =>{
     return ddb.scan(params).promise();
 }
 
-const createData = async () =>{
+const createData = async (event) =>{
     
+    let item = JSON.parse(event.body)
+    item.id = uuidv4();
     let params = {
         TableName: tableName,
-        Item:{
-            id: 312123,
-            TimeStamp: 112123,
-            Manufacture: "seat",
-            Mode: "ibiza",
-            Price: 1000
-        }
+        Item: item
     }
     return ddb.put(params,(err, data) => {
         if (err) {
