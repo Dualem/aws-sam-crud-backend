@@ -37,12 +37,12 @@ Resources:
           Type: Api
           Properties:
             Path: /vehicles/{id}
-            Method: get
+            Method: any
         allOperations:
           Type: Api
           Properties:
             Path: /vehicles
-            Method: any
+            Method: post
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
