@@ -85,7 +85,7 @@ const updateData = async (event)=>{
         Key:{
             id:vehicleId
         },
-        ConditionExpression: 'attribute_exists(itemId)',
+        ConditionExpression: 'attribute_exists(id)',
         UpdateExpression: "set Manufacture = :r, Model=:p, Price=:a",
         ExpressionAttributeValues:{
             ":r":manufacture,
@@ -113,7 +113,7 @@ const deleteData = async (event) =>{
         Key:{
             id:vehicleId,
         },
-        ConditionExpression: 'attribute_exists(itemId)'
+        ConditionExpression: 'attribute_exists(id)'
 
     }
     return ddb.delete(params, function(err, data) {
