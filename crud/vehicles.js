@@ -52,6 +52,9 @@ const createData = async (event) =>{
     let item = JSON.parse(event.body)
     item.id = uuidv4();
     //add 3 day ttl to db
+    let date = Date.now();
+    item.TimeStamp = addDays(date, 3);
+    console.log(date);
     let params = {
         TableName: tableName,
         Item: item
@@ -62,7 +65,7 @@ const createData = async (event) =>{
             console.error("Error JSON:", JSON.stringify(err));
         }
         else {
-            console.log("Vehicle added to talbe: ", params.Item);
+            console.log("Vehicle added to table: ", params.Item);
             
         }   
     }).promise().then(() =>{
@@ -92,7 +95,7 @@ const updateData = async (event)=>{
         ReturnValues:"UPDATED_NEW"
     };
 
-    return ddb.update(params, function(err, data) {
+    return ddb.update(params, (err, data) => {
         if (err) {
             console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
         } else {
@@ -122,4 +125,12 @@ const deleteData = async (event) =>{
     }).promise().then(()=>{
         return "vehicle deleted"
     });
+}
+
+//Function that adds 3 days to current date and returns it in unix format
+const addDays = (date, days)=> {
+  var result = new Date(date);
+  result.setDate(result.getDate() + days);
+  
+  return Math.floor(result.getTime() / 1000)
 }
