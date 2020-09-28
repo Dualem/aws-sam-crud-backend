@@ -82,6 +82,7 @@ const updateData = async (event)=>{
         Key:{
             id:vehicleId
         },
+        ConditionExpression: 'attribute_exists(itemId)',
         UpdateExpression: "set Manufacture = :r, Model=:p, Price=:a",
         ExpressionAttributeValues:{
             ":r":manufacture,
@@ -104,4 +105,21 @@ const updateData = async (event)=>{
 //Delete data function
 const deleteData = async (event) =>{
     let vehicleId = event.pathParameters.id;
+    let params={
+        TableName:tableName,
+        Key:{
+            id:vehicleId,
+        },
+        ConditionExpression: 'attribute_exists(itemId)'
+
+    }
+    return ddb.delete(params, function(err, data) {
+        if (err) {
+            console.error("Unable to delete item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            console.log("Delete succeeded:", JSON.stringify(data, null, 2));
+        }
+    }).promise().then(()=>{
+        return "vehicle deleted"
+    });
 }
